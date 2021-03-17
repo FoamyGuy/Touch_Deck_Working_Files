@@ -34,6 +34,10 @@ cc = ConsumerControl(usb_hid.devices)
 COOLDOWN_TIME = 0.5
 LAST_PRESS_TIME = -1
 
+PREV_LAYER_INDEX = -1
+NEXT_LAYER_INDEX = -2
+HOME_LAYER_INDEX = -3
+
 current_layer = 0
 
 # Make the display context
@@ -69,34 +73,34 @@ main_group.append(layer_label)
 
 next_layer_btn = IconWidget(
     "",
-    "touch_deck_icons/right_arrow.bmp",
+    "touch_deck_icons/layer_next.bmp",
     on_disk=True
 )
-next_layer_btn.x = display.width - 50
+next_layer_btn.x = display.width - 40
 next_layer_btn.y = display.height - 100
-next_layer_btn.resize = (50, 100)
+next_layer_btn.resize = (40, 100)
 
 main_group.append(next_layer_btn)
 
 prev_layer_btn = IconWidget(
     "",
-    "touch_deck_icons/left_arrow.bmp",
+    "touch_deck_icons/layer_prev.bmp",
     on_disk=True
 )
-prev_layer_btn.x = display.width - 50
+prev_layer_btn.x = display.width - 40
 prev_layer_btn.y = 110
-prev_layer_btn.resize = (50, 100)
+prev_layer_btn.resize = (40, 100)
 
 main_group.append(prev_layer_btn)
 
 home_layer_btn = IconWidget(
     "",
-    "touch_deck_icons/home_icon.bmp",
+    "touch_deck_icons/layer_home.bmp",
     on_disk=True
 )
-home_layer_btn.x = display.width - 50
+home_layer_btn.x = display.width - 40
 home_layer_btn.y = 0
-home_layer_btn.resize = (50, 100)
+home_layer_btn.resize = (40, 100)
 
 main_group.append(home_layer_btn)
 
@@ -140,7 +144,7 @@ while True:
 
                         print(p)
 
-                        if next_layer_btn.contains(p):
+                        if next_layer_btn.contains(p) and NEXT_LAYER_INDEX not in _pressed_icons:
 
                             current_layer += 1
                             if current_layer >= len(touch_deck_config["layers"]):
@@ -150,14 +154,17 @@ while True:
 
                             print("next layer button")
                             LAST_PRESS_TIME = time.monotonic()
-                        if home_layer_btn.contains(p):
+                            _pressed_icons.append(NEXT_LAYER_INDEX)
+
+                        if home_layer_btn.contains(p) and HOME_LAYER_INDEX not in _pressed_icons:
                             current_layer = 0
                             load_layer(current_layer)
 
                             print("home layer button")
                             LAST_PRESS_TIME = _now
+                            _pressed_icons.append(HOME_LAYER_INDEX)
 
-                        if prev_layer_btn.contains(p):
+                        if prev_layer_btn.contains(p) and PREV_LAYER_INDEX not in _pressed_icons:
 
                             current_layer -= 1
                             if current_layer < 0:
@@ -166,17 +173,23 @@ while True:
 
                             print("home layer button")
                             LAST_PRESS_TIME = _now
+                            _pressed_icons.append(PREV_LAYER_INDEX)
 
                         for index, icon_shortcut in enumerate(_icons):
                             if icon_shortcut.contains(p):
                                 if index not in _pressed_icons:
                                     print("pressed {}".format(index))
                                     print(touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][1])
-                                    if touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][0] == KEY:
-                                        kbd.press(*touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][1])
+                                    if touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
+                                        0] == KEY:
+                                        kbd.press(
+                                            *touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
+                                                1])
                                         kbd.release_all()
                                     else:
-                                        cc.send(touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][1])
+                                        cc.send(
+                                            touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
+                                                1])
                                     LAST_PRESS_TIME = _now
                                     _pressed_icons.append(index)
     else:  # screen not touched
