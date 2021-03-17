@@ -73,32 +73,67 @@ touch_deck_config = {
             ]
         },
         {
-            "name": "Test Second Layer",
+            "name": "Discord",
             "shortcuts": [
                 {
                     "label": "Blinka",
-                    "icon": "touch_deck_icons/test48_icon.bmp",
+                    "icon": "touch_deck_icons/af_blinka.bmp",
                     "actions": (STRING, ":blinka:")
                 },
                 {
-                    "label": "Test (E)",
-                    "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.E])
+                    "label": "Adabot",
+                    "icon": "touch_deck_icons/af_adabot.bmp",
+                    "actions": (STRING, ":adabot:")
                 },
                 {
-                    "label": "Test (S)",
-                    "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.S])
+                    "label": "Billie",
+                    "icon": "touch_deck_icons/af_billie.bmp",
+                    "actions": (STRING, ":billie:")
                 },
                 {
-                    "label": "Test (T)",
-                    "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.T])
+                    "label": "Cappy",
+                    "icon": "touch_deck_icons/af_cappy.bmp",
+                    "actions": (STRING, ":cappy:")
                 },
                 {
-                    "label": "Test [:)]",
-                    "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.RIGHT_SHIFT, Keycode.SEMICOLON, Keycode.ZERO])
+                    "label": "Connie",
+                    "icon": "touch_deck_icons/af_connie.bmp",
+                    "actions": (STRING, ":connie:")
+                },
+                {
+                    "label": "Gus",
+                    "icon": "touch_deck_icons/af_gus.bmp",
+                    "actions": (STRING, ":gus:")
+                },
+                {
+                    "label": "Hans",
+                    "icon": "touch_deck_icons/af_hans.bmp",
+                    "actions": (STRING, ":hans:")
+                },
+                {
+                    "label": "Mho",
+                    "icon": "touch_deck_icons/af_mho.bmp",
+                    "actions": (STRING, ":mho:")
+                },
+                {
+                    "label": "Minerva",
+                    "icon": "touch_deck_icons/af_minerva.bmp",
+                    "actions": (STRING, ":minerva:")
+                },
+                {
+                    "label": "NeoTrellis",
+                    "icon": "touch_deck_icons/af_neotrellis.bmp",
+                    "actions": (STRING, ":neotrellis:")
+                },
+                {
+                    "label": "Ruby",
+                    "icon": "touch_deck_icons/af_ruby.bmp",
+                    "actions": (STRING, ":ruby:")
+                },
+                {
+                    "label": "Sparky",
+                    "icon": "touch_deck_icons/af_sparky.bmp",
+                    "actions": (STRING, ":sparky:")
                 }
             ]
         },
