@@ -13,9 +13,10 @@ import displayio
 import terminalio
 from adafruit_display_text import label, bitmap_label
 from adafruit_displayio_layout.layouts.grid_layout import GridLayout
-from touch_deck_layers import touch_deck_config, KEY
+from touch_deck_layers import touch_deck_config, KEY, STRING
 import usb_hid
 from adafruit_hid.keyboard import Keyboard
+from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 from adafruit_hid.consumer_control import ConsumerControl
 from adafruit_button import Button
 from adafruit_displayio_layout.widgets.icon_widget import IconWidget
@@ -30,6 +31,7 @@ touchscreen = tft_featherwing.touchscreen
 
 kbd = Keyboard(usb_hid.devices)
 cc = ConsumerControl(usb_hid.devices)
+kbd_layout = KeyboardLayoutUS(kbd)
 
 COOLDOWN_TIME = 0.5
 LAST_PRESS_TIME = -1
@@ -186,6 +188,11 @@ while True:
                                             *touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
                                                 1])
                                         kbd.release_all()
+                                    elif touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
+                                        0] == STRING:
+                                        kbd_layout.write(
+                                            touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
+                                                1])
                                     else:
                                         cc.send(
                                             touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][

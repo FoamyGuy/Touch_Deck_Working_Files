@@ -3,6 +3,7 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 
 MEDIA = 1
 KEY = 2
+STRING = 3
 
 touch_deck_config = {
     "layers":[
@@ -75,9 +76,9 @@ touch_deck_config = {
             "name": "Test Second Layer",
             "shortcuts": [
                 {
-                    "label": "Test (T)",
+                    "label": "Blinka",
                     "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.T])
+                    "actions": (STRING, ":blinka:")
                 },
                 {
                     "label": "Test (E)",
