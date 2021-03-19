@@ -147,9 +147,9 @@ touch_deck_config = {
                     "actions": [(KEY, [Keycode.GUI]), (STRING, "flameshot\n")]
                 },
                 {
-                    "label": "Test (R)",
+                    "label": "Calculator",
                     "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.R])
+                    "actions": [(KEY, [Keycode.GUI, Keycode.SPACE]), (STRING, "Calculator")]
                 },
                 {
                     "label": "Test (D)",

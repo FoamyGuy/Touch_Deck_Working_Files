@@ -2,12 +2,9 @@
 #
 # SPDX-License-Identifier: Unlicense
 """
-This version runs on the PC for testing interface in a window
-mocked to the same size as the Featherwing.
+This version runs on Feather RP2040 with a 3.5" FeatherWing
 """
-import displayio
-import terminalio
-from adafruit_display_text import label
+
 import time
 import displayio
 import terminalio
@@ -18,34 +15,40 @@ import usb_hid
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 from adafruit_hid.consumer_control import ConsumerControl
-from adafruit_button import Button
 from adafruit_displayio_layout.widgets.icon_widget import IconWidget
 from adafruit_featherwing import tft_featherwing_35
 
+# display and touchscreen initialization
 displayio.release_displays()
 tft_featherwing = tft_featherwing_35.TFTFeatherWing35()
-
 display = tft_featherwing.display
-
 touchscreen = tft_featherwing.touchscreen
 
+# HID setup
 kbd = Keyboard(usb_hid.devices)
 cc = ConsumerControl(usb_hid.devices)
 kbd_layout = KeyboardLayoutUS(kbd)
 
+# variables to envorce timout between icon presses
 COOLDOWN_TIME = 0.5
 LAST_PRESS_TIME = -1
 
+# 'mock' icon indexes for the layer buttons
+# used for debouncing
 PREV_LAYER_INDEX = -1
 NEXT_LAYER_INDEX = -2
 HOME_LAYER_INDEX = -3
 
+# start on first layer
 current_layer = 0
 
-# Make the display context
+# Make the main_group to hold everything
 main_group = displayio.Group(max_size=10)
 display.show(main_group)
 
+# GridLayout to hold the icons
+# size and location can be adjusted to fit
+# different sized screens.
 layout = GridLayout(
     x=20,
     y=20,
@@ -56,23 +59,20 @@ layout = GridLayout(
     max_size=20,
 )
 
+# list that holds the IconWidget objects for each icon.
 _icons = []
 
+# list that holds indexes of currently pressed icons and layer buttons
+# used for debouncing
 _pressed_icons = []
 
-"""
-for i in range(12):
-    _new_icon = IconWidget("Shortcut {}".format(i), "images/test32_icon.bmp")
-    _icons.append(_new_icon)
-    layout.add_content(_new_icon, grid_position=(i%4, i//4), cell_size=(1, 1))
-
-"""
-
+# layer label at the top of the screen
 layer_label = bitmap_label.Label(terminalio.FONT)
 layer_label.anchor_point = (0.5, 0.0)
 layer_label.anchored_position = (display.width // 2, 4)
 main_group.append(layer_label)
 
+# right side layer buttons
 next_layer_btn = IconWidget(
     "",
     "touch_deck_icons/layer_next.bmp",
@@ -81,7 +81,6 @@ next_layer_btn = IconWidget(
 next_layer_btn.x = display.width - 40
 next_layer_btn.y = display.height - 100
 next_layer_btn.resize = (40, 100)
-
 main_group.append(next_layer_btn)
 
 prev_layer_btn = IconWidget(
@@ -92,7 +91,6 @@ prev_layer_btn = IconWidget(
 prev_layer_btn.x = display.width - 40
 prev_layer_btn.y = 110
 prev_layer_btn.resize = (40, 100)
-
 main_group.append(prev_layer_btn)
 
 home_layer_btn = IconWidget(
@@ -103,100 +101,162 @@ home_layer_btn = IconWidget(
 home_layer_btn.x = display.width - 40
 home_layer_btn.y = 0
 home_layer_btn.resize = (40, 100)
-
 main_group.append(home_layer_btn)
 
 
+# helper method to laod icons for an index by its index in the
+# list of layers
 def load_layer(layer_index):
-    # remove everything from self
+    # resets icon lists to empty
     global _icons
     _icons = []
     layout._cell_content_list = []
 
+    # remove previous layer icons from the layout
     while len(layout) > 0:
         layout.pop()
 
+    # set the layer labed at the top of the screen
     layer_label.text = touch_deck_config["layers"][layer_index]["name"]
+
+    # loop over each shortcut and it's index
     for i, shortcut in enumerate(touch_deck_config["layers"][layer_index]["shortcuts"]):
+        # create an icon for the current shortcut
         _new_icon = IconWidget(shortcut["label"], shortcut["icon"], on_disk=True)
+
+        # add it to the list of icons
         _icons.append(_new_icon)
+
+        # add it to the grid layout
+        # calculate it's position from the index
         layout.add_content(_new_icon, grid_position=(i % 4, i // 4), cell_size=(1, 1))
 
-
+# load the first layer to start
 load_layer(current_layer)
+
+# append the grid layout to the main_group
+# so it gets shown on the display
 main_group.append(layout)
+
+#  main loop
 while True:
     if touchscreen.touched:
+        # loop over all data in touchscreen buffer
         while not touchscreen.buffer_empty:
             touches = touchscreen.touches
+            # loop over all points touched
             for point in touches:
-
                 if point:
+                    # current time, used for timeout between icon presses
                     _now = time.monotonic()
+
+                    # if the timeout has passed
                     if _now - LAST_PRESS_TIME > COOLDOWN_TIME:
-                        print(point)
+                        #print(point)
+
+                        # map the observed minimum and maximum touch values
+                        # to the screen size
                         y = point["y"] - 250
                         x = 4096 - point["x"] - 250
                         y = y * display.width // (3820 - 250)
                         x = x * display.height // (3820 - 250)
-                        # x = 2 * x // 24
-                        # y = (8 * y // 72) - 10
 
+                        # touch data is 90 degrees rotated
+                        # flip x, and y here to account for that
                         p = (y, x)
+                        #print(p)
 
-                        print(p)
-
+                        # Next layer button pressed
                         if next_layer_btn.contains(p) and NEXT_LAYER_INDEX not in _pressed_icons:
 
+                            # increment layer
                             current_layer += 1
+                            # wrap back to beginning from end
                             if current_layer >= len(touch_deck_config["layers"]):
                                 current_layer = 0
-
+                            # load the new layer
                             load_layer(current_layer)
 
-                            print("next layer button")
-                            LAST_PRESS_TIME = time.monotonic()
+                            # save current time to check for timeout
+                            LAST_PRESS_TIME = _now
+
+                            # append this index to pressed icons for debouncing
                             _pressed_icons.append(NEXT_LAYER_INDEX)
 
+                        # home layer button pressed
                         if home_layer_btn.contains(p) and HOME_LAYER_INDEX not in _pressed_icons:
+                            # 0 index is home layer
                             current_layer = 0
+                            # load the home layer
                             load_layer(current_layer)
 
-                            print("home layer button")
+                            # save current time to check for timeout
                             LAST_PRESS_TIME = _now
+
+                            # append this index to pressed icons for debouncing
                             _pressed_icons.append(HOME_LAYER_INDEX)
 
+                        # Previous layer button pressed
                         if prev_layer_btn.contains(p) and PREV_LAYER_INDEX not in _pressed_icons:
 
+                            # decrement layer
                             current_layer -= 1
+                            # wrap back to end from beginning
                             if current_layer < 0:
                                 current_layer = len(touch_deck_config["layers"]) - 1
+
+                            # load the new layer
                             load_layer(current_layer)
 
-                            print("home layer button")
+                            # save current time to check for timeout
                             LAST_PRESS_TIME = _now
+
+                            # append this index to pressed icons for debouncing
                             _pressed_icons.append(PREV_LAYER_INDEX)
 
+                        # loop over current layer icons and their indexes
                         for index, icon_shortcut in enumerate(_icons):
+                            # if this icon was pressed
                             if icon_shortcut.contains(p):
+                                # debounce logic, check that it wasn't already pressed
                                 if index not in _pressed_icons:
                                     # print("pressed {}".format(index))
+
+                                    # get actions for this icon from config object
                                     _cur_actions = touch_deck_config["layers"][current_layer]["shortcuts"][index][
                                         "actions"]
+
+                                    # tuple means it's a single action
                                     if isinstance(_cur_actions, tuple):
+                                        # put it in a list by itself
                                         _cur_actions = [_cur_actions]
 
+                                    # loop over the actions
                                     for _action in _cur_actions:
+                                        # HID keyboard keys
                                         if _action[0] == KEY:
                                             kbd.press(*_action[1])
                                             kbd.release_all()
+
+                                        # String to write from layout
                                         elif _action[0] == STRING:
                                             kbd_layout.write(_action[1])
+
+                                        # Consumer control code
                                         else:
                                             cc.send(_action[1])
+
+                                        # if there are multiple actions
                                         if len(_cur_actions) > 1:
+                                            # small sleep to make sure
+                                            # OS can respond to previous action
                                             time.sleep(0.2)
+
+                                    # save current time to check for timeout
                                     LAST_PRESS_TIME = _now
+                                    # append this index to pressed icons for debouncing
                                     _pressed_icons.append(index)
     else:  # screen not touched
+
+        # empty the pressed icons list
         _pressed_icons.clear()
