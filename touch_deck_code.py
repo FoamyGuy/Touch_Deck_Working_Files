@@ -180,23 +180,22 @@ while True:
                         for index, icon_shortcut in enumerate(_icons):
                             if icon_shortcut.contains(p):
                                 if index not in _pressed_icons:
-                                    print("pressed {}".format(index))
-                                    print(touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][1])
-                                    if touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
-                                        0] == KEY:
-                                        kbd.press(
-                                            *touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
-                                                1])
-                                        kbd.release_all()
-                                    elif touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
-                                        0] == STRING:
-                                        kbd_layout.write(
-                                            touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
-                                                1])
-                                    else:
-                                        cc.send(
-                                            touch_deck_config["layers"][current_layer]["shortcuts"][index]["actions"][
-                                                1])
+                                    # print("pressed {}".format(index))
+                                    _cur_actions = touch_deck_config["layers"][current_layer]["shortcuts"][index][
+                                        "actions"]
+                                    if isinstance(_cur_actions, tuple):
+                                        _cur_actions = [_cur_actions]
+
+                                    for _action in _cur_actions:
+                                        if _action[0] == KEY:
+                                            kbd.press(*_action[1])
+                                            kbd.release_all()
+                                        elif _action[0] == STRING:
+                                            kbd_layout.write(_action[1])
+                                        else:
+                                            cc.send(_action[1])
+                                        if len(_cur_actions) > 1:
+                                            time.sleep(0.2)
                                     LAST_PRESS_TIME = _now
                                     _pressed_icons.append(index)
     else:  # screen not touched

@@ -141,9 +141,10 @@ touch_deck_config = {
             "name": "Test Third Layer",
             "shortcuts": [
                 {
-                    "label": "Test (3)",
+                    "label": "Flameshot",
                     "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.THREE])
+                    # \n can be used in the string for enter key
+                    "actions": [(KEY, [Keycode.GUI]), (STRING, "flameshot\n")]
                 },
                 {
                     "label": "Test (R)",
