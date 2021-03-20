@@ -4,6 +4,8 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 MEDIA = 1
 KEY = 2
 STRING = 3
+KEY_PRESS = 4
+KEY_RELEASE = 5
 
 touch_deck_config = {
     "layers":[
@@ -154,12 +156,21 @@ touch_deck_config = {
                 {
                     "label": "Test (D)",
                     "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.D])
+                    "actions": [(KEY, [Keycode.CONTROL, Keycode.SHIFT, Keycode.U]), (STRING, "221e\n")]
                 },
                 {
                     "label": "Test (L)",
                     "icon": "touch_deck_icons/test48_icon.bmp",
-                    "actions": (KEY, [Keycode.L])
+                    "actions": [
+                        (KEY_PRESS, [Keycode.SHIFT]),
+                        (KEY, [Keycode.B]),
+                        (KEY, [Keycode.L]),
+                        (KEY, [Keycode.I]),
+                        (KEY, [Keycode.N]),
+                        (KEY, [Keycode.K]),
+                        (KEY, [Keycode.A]),
+                        (KEY_RELEASE, [Keycode.SHIFT])
+                    ]
                 },
                 {
                     "label": "Test [:)]",

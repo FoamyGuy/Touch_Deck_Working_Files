@@ -10,7 +10,7 @@ import displayio
 import terminalio
 from adafruit_display_text import label, bitmap_label
 from adafruit_displayio_layout.layouts.grid_layout import GridLayout
-from touch_deck_layers import touch_deck_config, KEY, STRING
+from touch_deck_layers import touch_deck_config, KEY, STRING, MEDIA, KEY_PRESS, KEY_RELEASE
 import usb_hid
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
@@ -236,15 +236,23 @@ while True:
                                         # HID keyboard keys
                                         if _action[0] == KEY:
                                             kbd.press(*_action[1])
-                                            kbd.release_all()
+                                            kbd.release(*_action[1])
 
                                         # String to write from layout
                                         elif _action[0] == STRING:
                                             kbd_layout.write(_action[1])
 
                                         # Consumer control code
-                                        else:
+                                        elif _action[0] == MEDIA:
                                             cc.send(_action[1])
+
+                                        # Key press
+                                        elif _action[0] == KEY_PRESS:
+                                            kbd.press(*_action[1])
+
+                                        # Key release
+                                        elif _action[0] == KEY_RELEASE:
+                                            kbd.release(*_action[1])
 
                                         # if there are multiple actions
                                         if len(_cur_actions) > 1:
