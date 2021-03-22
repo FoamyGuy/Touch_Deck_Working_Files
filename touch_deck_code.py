@@ -18,6 +18,9 @@ from adafruit_hid.consumer_control import ConsumerControl
 from adafruit_displayio_layout.widgets.icon_widget import IconWidget
 from adafruit_featherwing import tft_featherwing_35
 
+# seems to help the touchscreen not get stuck with chip not found
+time.sleep(3)
+
 # display and touchscreen initialization
 displayio.release_displays()
 tft_featherwing = tft_featherwing_35.TFTFeatherWing35()
@@ -45,6 +48,28 @@ current_layer = 0
 # Make the main_group to hold everything
 main_group = displayio.Group(max_size=10)
 display.show(main_group)
+
+# loading screen
+loading_group = displayio.Group()
+
+# black background, screen size minus side buttons
+loading_background = displayio.Bitmap((display.width-40)//20, display.height//20, 1)
+loading_palette = displayio.Palette(1)
+loading_palette[0] = 0x0
+
+# scaled group to match screen size minus side buttons
+loading_background_scale_group = displayio.Group(scale=20)
+loading_background_tilegrid = displayio.TileGrid(loading_background, pixel_shader=loading_palette)
+loading_background_scale_group.append(loading_background_tilegrid)
+
+# loading screen label
+loading_label = bitmap_label.Label(terminalio.FONT, text="Loading...", scale=3)
+loading_label.anchor_point = (0.5, 0.5)
+loading_label.anchored_position = (display.width // 2, display.height // 2)
+
+# append background and label to the group
+loading_group.append(loading_background_scale_group)
+loading_group.append(loading_label)
 
 # GridLayout to hold the icons
 # size and location can be adjusted to fit
@@ -107,6 +132,11 @@ main_group.append(home_layer_btn)
 # helper method to laod icons for an index by its index in the
 # list of layers
 def load_layer(layer_index):
+
+    # show the loading screen
+    main_group.append(loading_group)
+    time.sleep(0.05)
+
     # resets icon lists to empty
     global _icons
     _icons = []
@@ -131,12 +161,17 @@ def load_layer(layer_index):
         # calculate it's position from the index
         layout.add_content(_new_icon, grid_position=(i % 4, i // 4), cell_size=(1, 1))
 
-# load the first layer to start
-load_layer(current_layer)
+    # hide the loading screen
+    time.sleep(0.05)
+    main_group.pop()
+
 
 # append the grid layout to the main_group
 # so it gets shown on the display
 main_group.append(layout)
+
+# load the first layer to start
+load_layer(current_layer)
 
 #  main loop
 while True:
@@ -152,7 +187,7 @@ while True:
 
                     # if the timeout has passed
                     if _now - LAST_PRESS_TIME > COOLDOWN_TIME:
-                        #print(point)
+                        # print(point)
 
                         # map the observed minimum and maximum touch values
                         # to the screen size
@@ -164,7 +199,7 @@ while True:
                         # touch data is 90 degrees rotated
                         # flip x, and y here to account for that
                         p = (y, x)
-                        #print(p)
+                        # print(p)
 
                         # Next layer button pressed
                         if next_layer_btn.contains(p) and NEXT_LAYER_INDEX not in _pressed_icons:
