@@ -8,7 +8,7 @@ KEY_PRESS = 4
 KEY_RELEASE = 5
 
 touch_deck_config = {
-    "layers":[
+    "layers": [
         {
             "name": "Awesome Stuff",
             "shortcuts": [
@@ -82,7 +82,7 @@ touch_deck_config = {
                     "icon": "touch_deck_icons/pr_volup.bmp",
                     "actions": (MEDIA, ConsumerControlCode.VOLUME_INCREMENT)
                 },
-                                {
+                {
                     "label": "Fullscreen",
                     "icon": "touch_deck_icons/pr_fullscreen.bmp",
                     "actions": (KEY, [Keycode.F])
