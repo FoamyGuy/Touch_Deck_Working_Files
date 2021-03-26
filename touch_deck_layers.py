@@ -10,6 +10,36 @@ KEY_RELEASE = 5
 touch_deck_config = {
     "layers":[
         {
+            "name": "Awesome Stuff",
+            "shortcuts": [
+                {
+                    "label": "Pull",
+                    "icon": "touch_deck_icons/git_pull.bmp",
+                    "actions": (KEY, [Keycode.CONTROL, Keycode.T])
+                },
+                {
+                    "label": "Commit",
+                    "icon": "touch_deck_icons/git_commit.bmp",
+                    "actions": (KEY, [Keycode.CONTROL, Keycode.K])
+                },
+                {
+                    "label": "Push Commits",
+                    "icon": "touch_deck_icons/git_push.bmp",
+                    "actions": (KEY, [Keycode.CONTROL, Keycode.RIGHT_SHIFT, Keycode.K])
+                },
+                {
+                    "label": "Commit + Push",
+                    "icon": "touch_deck_icons/git_push.bmp",
+                    "actions": (KEY, [Keycode.CONTROL, Keycode.LEFT_ALT, Keycode.K])
+                },
+                {
+                    "label": "Push",
+                    "icon": "touch_deck_icons/git_push.bmp",
+                    "actions": (KEY, [Keycode.LEFT_ALT, Keycode.P])
+                },
+            ]
+        },
+        {
             "name": "Youtube Controls",
             "shortcuts": [
                 {
